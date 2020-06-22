@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.agenda.MainActivity">
+    <item
+        android:id="@+id/lista_tareas"
+        android:title="@string/listas_tareas"/>
+    <item
+        android:id="@+id/tareas_multiples"
+        android:title="@string/multiples_tareas"/>
+    <item
+        android:id="@+id/notas"
+        android:title="@string/notas"
+        />
+    <item
+        android:id="@+id/configuracion"
+        android:title="@string/configuracion"/>
+</menu>
