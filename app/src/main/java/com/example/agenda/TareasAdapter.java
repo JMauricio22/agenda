@@ -1,9 +1,12 @@
 package com.example.agenda;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,12 +14,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import BD.tareas.Tarea;
 
-public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder> {
+public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder> implements Filterable{
 
     //Interface
     public interface OnItemClickListener {
@@ -27,14 +32,13 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
         void onItemClick (Tarea tarea);
     }
 
-    //ViewHolder
+    //Inner Class
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         public View view;
         public TextView tituloTarea;
         public TextView fecha;
         public ImageView btnEliminar;
-        public Tarea tarea;
 
         public ViewHolder(@NonNull View view) {
             super(view);
@@ -44,29 +48,81 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
             btnEliminar = (ImageView) view.findViewById(R.id.btn_eliminar_tarea);
         }
 
-        public void bind(final Tarea t , final OnRemoveClickListener removeClickListener){
-            this.tarea = t;
-            tituloTarea.setText(t.titulo);
+        public void bind(final Tarea tarea , final OnRemoveClickListener removeClickListener){
+
+            tituloTarea.setText(tarea.titulo);
+
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+
             Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(t.fecha);
+
+            calendar.setTimeInMillis(tarea.fecha);
+
             fecha.setText(format.format(calendar.getTime()));
+
             btnEliminar.setOnClickListener( new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    removeClickListener.onItemClick(t);
+                    removeClickListener.onItemClick(tarea);
                 }
             });
         }
     }
 
-    private List<Tarea> listaTareas;
+    public class CustomFilter extends Filter{
+
+        public CustomFilter(){
+            super();
+        }
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            Log.i("QueryAdapter" , constraint.toString());
+
+            filterList.clear();
+
+            FilterResults filterResults = new FilterResults();
+
+
+            if(constraint.toString().length() == 0 || constraint.toString().equals("")) {
+
+                filterList.addAll(taskList);
+
+                return filterResults;
+            }
+
+            for(Tarea tarea: taskList){
+                if(tarea.titulo.contains(constraint.toString())) {
+                    filterList.add(tarea);
+                }
+            }
+
+            filterResults.values = filterList;
+            filterResults.count = filterList.size();
+
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            self.notifyDataSetChanged();
+        }
+    }
+
+    //Fields
+    private List<Tarea> taskList;
+    private List<Tarea> filterList;
     private Context context;
     private OnRemoveClickListener removeClickListener;
+    public Filter filter;
+    private TareasAdapter self = this;
 
     public TareasAdapter(Context context , OnRemoveClickListener removeClickListener){
         this.context = context;
         this.removeClickListener = removeClickListener;
+        taskList = new ArrayList<>();
+        filterList = new ArrayList<>();
+        filter = new CustomFilter();
     }
 
     @NonNull
@@ -78,18 +134,22 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(listaTareas.get(position) , removeClickListener);
+        holder.bind(filterList.get(position) , removeClickListener);
     }
 
     @Override
     public int getItemCount() {
-        if(listaTareas == null)
-            return 0;
-        return listaTareas.size();
+        return filterList.size();
     }
 
-    public void setItems(List<Tarea> nuevaLista){
-        listaTareas = nuevaLista;
+    public void setItems(List<Tarea> newList){
+        taskList.addAll(newList);
+        filterList.addAll(taskList);
         notifyDataSetChanged();
+    }
+
+    @Override
+    public Filter getFilter(){
+        return filter;
     }
 }
