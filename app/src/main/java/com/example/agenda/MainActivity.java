@@ -16,10 +16,16 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import BD.model.TareaViewModel;
@@ -28,6 +34,8 @@ import BD.tareas.Tarea;
 public class MainActivity extends AppCompatActivity {
 
     private MainActivity self = this;
+
+    private View[] listas = new View[6];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,18 +54,107 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
 
-        final TareasAdapter adapter = new TareasAdapter(getApplicationContext() , onDeleteListItem());
+        createLiskTask();
+    }
 
-        RecyclerView listaTareas = (RecyclerView) findViewById(R.id.lista_tareas);
-
-        listaTareas.setLayoutManager(layoutManager);
-
-        listaTareas.setAdapter(adapter);
+    public void createLiskTask(){
 
         new ViewModelProvider(this).get(TareaViewModel.class).getTareas().observe(this , new Observer<List<Tarea>>(){
+
             @Override
             public void onChanged(@NonNull final List<Tarea> listaTareas) {
-                adapter.setItems(listaTareas);
+
+                final String[] filterName = {"Atrasado" , "Hoy" , "Esta semana" , "Semana siguiente" , "Proximo mes" , "Mas tarde"};
+
+                Calendar currentCalendar = Calendar.getInstance();
+
+                ViewGroup container = (ViewGroup) findViewById(R.id.task_container);
+
+                for(View v: listas)
+                    container.removeView(v);
+
+                for(int i = 0 ; i < filterName.length ; i++){
+
+                    View view = getLayoutInflater().inflate(R.layout.lista_tareas , null);
+
+                    listas[i] = view;
+
+                    RecyclerView list = (RecyclerView) view.findViewById(R.id.lista_tareas);
+
+                    ( (TextView) view.findViewById(R.id.titulo_lista_tareas)).setText(filterName[i]);
+
+                    List<Tarea> filterList = new ArrayList<>();
+
+                    for(Tarea tarea: listaTareas){
+
+                        Calendar taskCalendar = Calendar.getInstance();
+
+                        taskCalendar.setTimeInMillis(tarea.fecha);
+
+                        switch (i){
+                            case 0:
+
+                                if(taskCalendar.get(Calendar.YEAR) < currentCalendar.get(Calendar.YEAR))
+                                    filterList.add(tarea);
+                                else if(taskCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR) && taskCalendar.get(Calendar.MONTH) < currentCalendar.get(Calendar.MONTH) )
+                                    filterList.add(tarea);
+                                else if(taskCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR) && taskCalendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH) && taskCalendar.get(Calendar.DAY_OF_MONTH) < currentCalendar.get(Calendar.DAY_OF_MONTH))
+                                    filterList.add(tarea);
+
+                                break;
+                            case 1:
+
+                                if(currentCalendar.get(Calendar.DAY_OF_MONTH) == taskCalendar.get(Calendar.DAY_OF_MONTH) && currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
+                                    filterList.add(tarea);
+
+                                break;
+                            case 2:
+                            case 3:
+
+                                int limite = 6 - (currentCalendar.get(Calendar.DAY_OF_WEEK) - 1);
+
+                                if(currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
+
+                                    if(taskCalendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)){
+
+                                        if( i == 2 && taskCalendar.get(Calendar.DAY_OF_MONTH) > currentCalendar.get(Calendar.DAY_OF_MONTH) && taskCalendar.get(Calendar.DAY_OF_MONTH) <= (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite) ){
+                                            filterList.add(tarea);
+                                        }else if( i == 3 && (taskCalendar.get(Calendar.DAY_OF_MONTH) <= (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite + 7) && taskCalendar.get(Calendar.DAY_OF_MONTH) > (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite))){
+                                            filterList.add(tarea);
+                                        }
+
+                                    }
+
+                                break;
+
+                            case 4:
+
+                                if((taskCalendar.get(Calendar.MONTH) - currentCalendar.get(Calendar.MONTH)) == 1 && currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
+                                    filterList.add(tarea);
+
+                                break;
+
+                            case 5:
+                                if((taskCalendar.get(Calendar.MONTH) - currentCalendar.get(Calendar.MONTH)) > 1 && taskCalendar.get(Calendar.YEAR) >= currentCalendar.get(Calendar.YEAR))
+                                    filterList.add(tarea);
+
+                                break;
+                        }
+                    }
+
+                    if(filterList.isEmpty())
+                        continue;
+
+                    list.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                    TareasAdapter adapter = new TareasAdapter(getApplicationContext() , onDeleteListItem());
+
+                    list.setAdapter(adapter);
+
+                    adapter.setItems(filterList);
+
+                    container.addView(view);
+                }
             }
         });
     }

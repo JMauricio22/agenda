@@ -15,10 +15,7 @@ public class Tarea {
     public String titulo;
 
     @NonNull
-    public String fecha;
-
-    @NonNull
-    public String hora;
+    public Long fecha;
 
     @NonNull
     public String observaciones;
