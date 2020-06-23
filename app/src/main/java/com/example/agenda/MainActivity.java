@@ -1,12 +1,11 @@
 package com.example.agenda;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.agenda.R;
-import com.example.agenda.TareasAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +20,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.Filter;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -35,7 +35,9 @@ public class MainActivity extends AppCompatActivity {
 
     private MainActivity self = this;
 
-    private View[] listas = new View[6];
+    private View[] list = new View[6];
+
+    private Filter[] filters = new Filter[list.length];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,24 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+
+        SearchView searchView = (SearchView) findViewById(R.id.search);
+
+        searchView.setOnQueryTextListener( new SearchView.OnQueryTextListener(){
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterTasks(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                filterTasks(query);
+                return true;
+            }
+
+        });
 
         setSupportActionBar(toolbar);
 
@@ -70,14 +90,14 @@ public class MainActivity extends AppCompatActivity {
 
                 ViewGroup container = (ViewGroup) findViewById(R.id.task_container);
 
-                for(View v: listas)
+                for(View v: list)
                     container.removeView(v);
 
                 for(int i = 0 ; i < filterName.length ; i++){
 
                     View view = getLayoutInflater().inflate(R.layout.lista_tareas , null);
 
-                    listas[i] = view;
+                    list[i] = view;
 
                     RecyclerView list = (RecyclerView) view.findViewById(R.id.lista_tareas);
 
@@ -149,6 +169,8 @@ public class MainActivity extends AppCompatActivity {
 
                     TareasAdapter adapter = new TareasAdapter(getApplicationContext() , onDeleteListItem());
 
+                    filters[i] = adapter.getFilter();
+
                     list.setAdapter(adapter);
 
                     adapter.setItems(filterList);
@@ -157,6 +179,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void filterTasks(String query){
+        for(Filter f: filters){
+            if(f != null)
+                f.filter(query);
+        }
     }
 
     @Override
