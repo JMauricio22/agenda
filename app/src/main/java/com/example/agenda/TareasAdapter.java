@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import BD.tareas.Tarea;
@@ -45,7 +47,10 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
         public void bind(final Tarea t , final OnRemoveClickListener removeClickListener){
             this.tarea = t;
             tituloTarea.setText(t.titulo);
-            fecha.setText(t.fecha);
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(t.fecha);
+            fecha.setText(format.format(calendar.getTime()));
             btnEliminar.setOnClickListener( new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
