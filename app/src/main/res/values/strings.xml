@@ -11,11 +11,9 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
     <!--Main Activity-->
-    <string name="listas_tareas">Listas de tareas</string>
-    <string name="multiples_tareas">Añadir multiples tareas</string>
-    <string name="notas">Notas</string>
-    <string name="configuracion">Configuracion</string>
     <string name="buscar">Buscar</string>
+    <string name="open_drawer">Drawer open</string>
+    <string name="close_drawer">Drawer close</string>
 
     <!-- Crear Tarea Activity-->
     <string name="tarea_titulo">¿Que hay que hacer?</string>
@@ -28,4 +26,9 @@
     <string name="placeholder_hora">Hora</string>
 
     <string name="btn_guardar">Guardar</string>
+
+    <!-- Menu -->
+    <string name="listas_tareas">Listas de tareas</string>
+    <string name="notas">Notas</string>
+    <string name="configuracion">Configuracion</string>
 </resources>

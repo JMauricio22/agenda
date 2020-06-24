@@ -6,10 +6,17 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,181 +54,39 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        setupDrawerContent((NavigationView) findViewById(R.id.navigation));
 
-        SearchView searchView = (SearchView) findViewById(R.id.search);
+        loadTaskFragment();
 
-        searchView.setOnQueryTextListener( new SearchView.OnQueryTextListener(){
-
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                filterTasks(query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                filterTasks(query);
-                return true;
-            }
-
-        });
-
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton btn = (FloatingActionButton) findViewById(R.id.btn_agregar_tarea);
-
-        btn.setOnClickListener( onCreateTask() );
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-
-        createLiskTask();
     }
 
-    public void createLiskTask(){
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
 
-        new ViewModelProvider(this).get(TareaViewModel.class).getTareas().observe(this , new Observer<List<Tarea>>(){
+                        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer);
 
-            @Override
-            public void onChanged(@NonNull final List<Tarea> listaTareas) {
+                        drawer.closeDrawer(GravityCompat.START);
 
-                final String[] filterName = {"Atrasado" , "Hoy" , "Esta semana" , "Semana siguiente" , "Proximo mes" , "Mas tarde"};
+                        Toast.makeText(self, "Testing", Toast.LENGTH_SHORT).show();
 
-                Calendar currentCalendar = Calendar.getInstance();
-
-                ViewGroup container = (ViewGroup) findViewById(R.id.task_container);
-
-                for(View v: list)
-                    container.removeView(v);
-
-                for(int i = 0 ; i < filterName.length ; i++){
-
-                    View view = getLayoutInflater().inflate(R.layout.lista_tareas , null);
-
-                    list[i] = view;
-
-                    RecyclerView list = (RecyclerView) view.findViewById(R.id.lista_tareas);
-
-                    ( (TextView) view.findViewById(R.id.titulo_lista_tareas)).setText(filterName[i]);
-
-                    List<Tarea> filterList = new ArrayList<>();
-
-                    for(Tarea tarea: listaTareas){
-
-                        Calendar taskCalendar = Calendar.getInstance();
-
-                        taskCalendar.setTimeInMillis(tarea.fecha);
-
-                        switch (i){
-                            case 0:
-
-                                if(taskCalendar.get(Calendar.YEAR) < currentCalendar.get(Calendar.YEAR))
-                                    filterList.add(tarea);
-                                else if(taskCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR) && taskCalendar.get(Calendar.MONTH) < currentCalendar.get(Calendar.MONTH) )
-                                    filterList.add(tarea);
-                                else if(taskCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR) && taskCalendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH) && taskCalendar.get(Calendar.DAY_OF_MONTH) < currentCalendar.get(Calendar.DAY_OF_MONTH))
-                                    filterList.add(tarea);
-
-                                break;
-                            case 1:
-
-                                if(currentCalendar.get(Calendar.DAY_OF_MONTH) == taskCalendar.get(Calendar.DAY_OF_MONTH) && currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
-                                    filterList.add(tarea);
-
-                                break;
-                            case 2:
-                            case 3:
-
-                                int limite = 6 - (currentCalendar.get(Calendar.DAY_OF_WEEK) - 1);
-
-                                if(currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
-
-                                    if(taskCalendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)){
-
-                                        if( i == 2 && taskCalendar.get(Calendar.DAY_OF_MONTH) > currentCalendar.get(Calendar.DAY_OF_MONTH) && taskCalendar.get(Calendar.DAY_OF_MONTH) <= (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite) ){
-                                            filterList.add(tarea);
-                                        }else if( i == 3 && (taskCalendar.get(Calendar.DAY_OF_MONTH) <= (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite + 7) && taskCalendar.get(Calendar.DAY_OF_MONTH) > (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite))){
-                                            filterList.add(tarea);
-                                        }
-
-                                    }
-
-                                break;
-
-                            case 4:
-
-                                if((taskCalendar.get(Calendar.MONTH) - currentCalendar.get(Calendar.MONTH)) == 1 && currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
-                                    filterList.add(tarea);
-
-                                break;
-
-                            case 5:
-                                if((taskCalendar.get(Calendar.MONTH) - currentCalendar.get(Calendar.MONTH)) > 1 && taskCalendar.get(Calendar.YEAR) >= currentCalendar.get(Calendar.YEAR))
-                                    filterList.add(tarea);
-
-                                break;
-                        }
+                        return true;
                     }
-
-                    if(filterList.isEmpty())
-                        continue;
-
-                    list.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-                    TareasAdapter adapter = new TareasAdapter(getApplicationContext() , onDeleteListItem());
-
-                    filters[i] = adapter.getFilter();
-
-                    list.setAdapter(adapter);
-
-                    adapter.setItems(filterList);
-
-                    container.addView(view);
-                }
-            }
-        });
+                });
     }
 
-    private void filterTasks(String query){
-        for(Filter f: filters){
-            if(f != null)
-                f.filter(query);
-        }
-    }
+    public void loadTaskFragment(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()){
-            default:
-               return super.onOptionsItemSelected(item);
-        }
-    }
+        Fragment taskFragment = new TaskFragment();
 
-    public View.OnClickListener onCreateTask(){
-        return new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext() , CrearTareaActivity.class );
-                intent.putExtra(CrearTareaActivity.ACCION , CrearTareaActivity.CODE_REQUEST_ADD_TASK);
-                startActivity( intent );
-            }
-        };
-    }
+        fragmentTransaction.add(R.id.fragment_container , taskFragment);
 
-    public TareasAdapter.OnRemoveClickListener onDeleteListItem(){
-        return new TareasAdapter.OnRemoveClickListener() {
-            @Override
-            public void onItemClick(Tarea tarea) {
-                TareaViewModel model = new ViewModelProvider(self).get(TareaViewModel.class);
-                model.eliminar(tarea);
-            }
-        };
+        fragmentTransaction.commit();
     }
 
 }
