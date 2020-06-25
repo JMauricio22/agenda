@@ -48,6 +48,8 @@ public class CreateTaskActivity extends AppCompatActivity {
 
     private Date date = Calendar.getInstance().getTime();
 
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("" , Locale.getDefault());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -138,7 +140,9 @@ public class CreateTaskActivity extends AppCompatActivity {
 
                 date = calendar.getTime();
 
-                taskDate.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
+                simpleDateFormat.applyPattern("EEE,  MMM d, yyyy");
+
+                taskDate.setText(simpleDateFormat.format(date));
             }
         };
     }
@@ -156,7 +160,9 @@ public class CreateTaskActivity extends AppCompatActivity {
 
                 date = calendar.getTime();
 
-                taskTime.setText(hourOfDay + ":" + minute);
+                simpleDateFormat.applyPattern("hh:mm a");
+
+                taskTime.setText(simpleDateFormat.format(date));
             }
         };
     }
@@ -177,17 +183,25 @@ public class CreateTaskActivity extends AppCompatActivity {
 
             taskTitle.setText( intent.getStringExtra(TASK_TITLE) );
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "" , Locale.getDefault());
-
             simpleDateFormat.applyPattern("EEE,  MMM d, yyyy");
 
             taskDate.setText(simpleDateFormat.format(calendar.getTime()));
 
-            simpleDateFormat.applyPattern("hh:mm");
+            simpleDateFormat.applyPattern("hh:mm a");
 
             taskTime.setText(simpleDateFormat.format(calendar.getTime()));
 
             observation.setText( intent.getStringExtra(TASK_OBSERVATION));
+        }else{
+
+            simpleDateFormat.applyPattern("EEE, MMM d, yyy");
+
+            taskDate.setText( simpleDateFormat.format(Calendar.getInstance().getTime()));
+
+            simpleDateFormat.applyPattern("hh:mm a");
+
+            taskTime.setText(simpleDateFormat.format(Calendar.getInstance().getTime()));
+
         }
     }
 

@@ -20,7 +20,7 @@ import java.util.List;
 import BD.notas.Nota;
 
 
-public class NotasAdapater extends RecyclerView.Adapter<NotasAdapater.ViewHolder> implements Filterable {
+public class NoteAdapater extends RecyclerView.Adapter<NoteAdapater.ViewHolder> implements Filterable {
 
     //Interface
 
@@ -55,7 +55,7 @@ public class NotasAdapater extends RecyclerView.Adapter<NotasAdapater.ViewHolder
             btn_edit = (ImageView) view.findViewById(R.id.btn_editar_nota);
         }
 
-        public void bind(final Nota nota , final NotasAdapater.OnRemoveClickListener removeClickListener , final NotasAdapater.onItemClickListener itemClickListener){
+        public void bind(final Nota nota , final NoteAdapater.OnRemoveClickListener removeClickListener , final NoteAdapater.onItemClickListener itemClickListener){
 
             title.setText(nota.titulo);
 
@@ -117,13 +117,13 @@ public class NotasAdapater extends RecyclerView.Adapter<NotasAdapater.ViewHolder
 
     private LayoutInflater inflater;
 
-    private NotasAdapater.OnRemoveClickListener removeClickListener;
+    private NoteAdapater.OnRemoveClickListener removeClickListener;
 
-    private NotasAdapater.onItemClickListener itemClickListener;
+    private NoteAdapater.onItemClickListener itemClickListener;
 
     private CustomFilter filter;
 
-    public NotasAdapater(Context context ,  NotasAdapater.OnRemoveClickListener removeClickListener , NotasAdapater.onItemClickListener itemClickListener){
+    public NoteAdapater(Context context , NoteAdapater.OnRemoveClickListener removeClickListener , NoteAdapater.onItemClickListener itemClickListener){
 
         noteList = new ArrayList<>();
 
