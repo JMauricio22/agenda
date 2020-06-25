@@ -4,9 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -14,13 +14,17 @@ import android.widget.Toast;
 import BD.model.NotaViewModel;
 import BD.notas.Nota;
 
-public class CrearNotaActivity extends AppCompatActivity {
+public class CreateNoteActivity extends AppCompatActivity {
 
     public static final String CODE_REQUEST_ADD_NOTE = "ADD_NOTE";
     public static final String CODE_REQUEST_EDIT_NOTE = "EDIT_NOTE";
     public static final String ACCION = "ACCION";
 
-    EditText titulo , descripcion;
+    public static final String NOTE_ID = "NOTE_ID";
+    public static final String NOTE_TITLE = "NOTE_TITLE";
+    public static final String NOTE_DESCRIPTION = "NOTE_DESCRIPTION";
+
+    EditText title, description;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +41,23 @@ public class CrearNotaActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        titulo = (EditText) findViewById(R.id.txt_nota_titulo);
+        title = (EditText) findViewById(R.id.txt_nota_titulo);
 
-        descripcion = (EditText) findViewById(R.id.txt_nota_descripcion);
+        description = (EditText) findViewById(R.id.txt_nota_descripcion);
+
+        initializeNote();
+    }
+
+    public void initializeNote(){
+        Intent intent = getIntent();
+
+        if(intent.getStringExtra(CreateNoteActivity.ACCION).equals(CreateNoteActivity.CODE_REQUEST_EDIT_NOTE)){
+
+            title.setText( intent.getStringExtra(CreateNoteActivity.NOTE_TITLE));
+
+            description.setText( intent.getStringExtra(CreateNoteActivity.NOTE_DESCRIPTION));
+
+        }
     }
 
     @Override
@@ -86,9 +104,12 @@ public class CrearNotaActivity extends AppCompatActivity {
     private Nota getData(){
         Nota note = new Nota();
 
-        note.titulo = titulo.getText().toString();
+        if(getIntent().getStringExtra(CreateNoteActivity.ACCION).equals(CreateNoteActivity.CODE_REQUEST_EDIT_NOTE))
+            note.id = getIntent().getIntExtra( NOTE_ID , -1);
 
-        note.descripcion = descripcion.getText().toString();
+        note.titulo = title.getText().toString();
+
+        note.descripcion = description.getText().toString();
 
         return note;
     }

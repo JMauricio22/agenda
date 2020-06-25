@@ -1,10 +1,12 @@
 package com.example.agenda.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
 import android.widget.SearchView;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -17,7 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.agenda.CrearNotaActivity;
+import com.example.agenda.CreateNoteActivity;
 import com.example.agenda.R;
 import com.example.agenda.adapter.NotasAdapater;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,6 +33,10 @@ public class NoteFragment extends Fragment {
 
     NotasAdapater adapater;
 
+    Context context;
+
+    Filter filter;
+
     @Override
     public View onCreateView(LayoutInflater inflater , ViewGroup container , Bundle savedInstace){
         return inflater.inflate(R.layout.fragment_list , container , false);
@@ -39,6 +45,8 @@ public class NoteFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstance){
         super.onActivityCreated(savedInstance);
+
+        context = getActivity().getApplicationContext();
 
         Toolbar toolbar = getView().findViewById(R.id.toolbar);
 
@@ -53,21 +61,7 @@ public class NoteFragment extends Fragment {
 
         SearchView searchView = (SearchView) getView().findViewById(R.id.search);
 
-        searchView.setOnQueryTextListener( new SearchView.OnQueryTextListener(){
-
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-
-                return true;
-            }
-
-        });
+        searchView.setOnQueryTextListener( onQueryTextListener());
 
         FloatingActionButton btn = (FloatingActionButton) getView().findViewById(R.id.btn_agregar_tarea);
 
@@ -79,9 +73,11 @@ public class NoteFragment extends Fragment {
 
         ViewGroup container = getView().findViewById(R.id.list_container);
 
-        recyclerView.setLayoutManager( new GridLayoutManager(getActivity().getApplicationContext() , 2));
+        recyclerView.setLayoutManager( new GridLayoutManager( context , 2));
 
-        adapater = new NotasAdapater(getActivity().getApplicationContext());
+        adapater = new NotasAdapater( context , onDeleteListItem() , onEditListItem());
+
+        filter = adapater.getFilter();
 
         recyclerView.setAdapter(adapater);
 
@@ -103,14 +99,65 @@ public class NoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(getActivity().getApplicationContext() , CrearNotaActivity.class );
+                Intent intent = new Intent(getActivity().getApplicationContext() , CreateNoteActivity.class );
 
-                intent.putExtra(CrearNotaActivity.ACCION , CrearNotaActivity.CODE_REQUEST_ADD_NOTE);
+                intent.putExtra(CreateNoteActivity.ACCION , CreateNoteActivity.CODE_REQUEST_ADD_NOTE);
 
                 startActivity( intent );
             }
         };
     }
 
+    public NotasAdapater.OnRemoveClickListener onDeleteListItem(){
+        return new NotasAdapater.OnRemoveClickListener() {
+            @Override
+            public void onItemClick(Nota nota) {
+
+                NotaViewModel model = new ViewModelProvider(getActivity()).get(NotaViewModel.class);
+
+                model.eliminar(nota);
+            }
+        };
+    }
+
+    public NotasAdapater.onItemClickListener onEditListItem(){
+        return new NotasAdapater.onItemClickListener() {
+            @Override
+            public void onItemClick(Nota nota) {
+
+                Intent intent = new Intent( getActivity().getApplicationContext()  , CreateNoteActivity.class);
+
+                intent.putExtra(CreateNoteActivity.ACCION , CreateNoteActivity.CODE_REQUEST_EDIT_NOTE);
+
+                intent.putExtra(CreateNoteActivity.NOTE_ID , nota.id);
+
+                intent.putExtra(CreateNoteActivity.NOTE_TITLE , nota.titulo);
+
+                intent.putExtra(CreateNoteActivity.NOTE_DESCRIPTION , nota.descripcion);
+
+                startActivity(intent);
+            }
+        };
+    }
+
+    public SearchView.OnQueryTextListener onQueryTextListener(){
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                filter.filter(query);
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+
+                filter.filter(query);
+
+                return true;
+            }
+        };
+    }
 
 }
