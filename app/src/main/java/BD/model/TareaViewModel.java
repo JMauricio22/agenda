@@ -2,7 +2,6 @@ package BD.model;
 
 import android.app.Application;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
@@ -21,15 +20,15 @@ public class TareaViewModel extends AndroidViewModel {
     }
 
     public void insertar(Tarea tarea){
-        repository.insertar(tarea);
+        repository.insertarTarea(tarea);
     }
 
     public void actualizar(Tarea tarea){
-        repository.actualizar(tarea);
+        repository.actualizarTarea(tarea);
     }
 
     public void eliminar(Tarea tarea){
-        repository.eliminar(tarea);
+        repository.eliminarTarea(tarea);
     }
 
     public LiveData<List<Tarea>> getTareas(){
