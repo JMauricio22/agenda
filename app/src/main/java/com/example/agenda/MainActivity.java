@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.example.agenda.fragments.NoteFragment;
+import com.example.agenda.fragments.TaskFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,19 +16,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.view.View;
 import android.view.MenuItem;
-import android.widget.Filter;
-import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private MainActivity self = this;
+    FragmentManager fragmentManager;
 
-    private View[] list = new View[6];
-
-    private Filter[] filters = new Filter[list.length];
+    Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         loadTaskFragment();
 
         createNotificationChannel(getString(R.string.channel_id));
-
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -51,23 +47,59 @@ public class MainActivity extends AppCompatActivity {
 
                         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer);
 
-                        drawer.closeDrawer(GravityCompat.START);
+                        Fragment fragment;
 
-                        Toast.makeText(self, "Testing", Toast.LENGTH_SHORT).show();
+                        switch (menuItem.getItemId()){
+                            case R.id.lista_tareas:
 
-                        return true;
+                                if(!(currentFragment instanceof TaskFragment)){
+
+                                    currentFragment = new TaskFragment();
+
+                                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                                    transaction.replace(R.id.fragment_container , currentFragment )
+                                            .commit();
+                                }
+
+                                drawer.closeDrawer(GravityCompat.START);
+
+                                return true;
+
+                            case R.id.notas:
+
+                                if(!(currentFragment instanceof NoteFragment)){
+
+                                    currentFragment = new NoteFragment();
+
+                                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                                    transaction.replace(R.id.fragment_container , currentFragment )
+                                            .commit();
+                                }
+
+                                drawer.closeDrawer(GravityCompat.START);
+
+                                return true;
+
+                            case R.id.salir:
+                                    finish();
+
+                            default:
+                                return true;
+                        }
                     }
                 });
     }
 
     public void loadTaskFragment(){
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        Fragment taskFragment = new TaskFragment();
+        currentFragment = new TaskFragment();
 
-        fragmentTransaction.add(R.id.fragment_container , taskFragment);
+        fragmentTransaction.add(R.id.fragment_container , currentFragment);
 
         fragmentTransaction.commit();
     }

@@ -209,7 +209,7 @@ public class CrearTareaActivity extends AppCompatActivity {
     }
 
     private void showMessage(String message){
-        message = "Complete el campo de " + message;
-        Toast.makeText(getApplicationContext() , message , Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext() , "Complete el campo " + message , Toast.LENGTH_SHORT)
+                .show();
     }
 }

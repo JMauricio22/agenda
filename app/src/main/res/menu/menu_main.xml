@@ -11,7 +11,7 @@
             android:title="@string/notas"
             />
         <item
-            android:id="@+id/configuracion"
-            android:title="@string/configuracion"/>
+            android:id="@+id/salir"
+            android:title="@string/salir"/>
     </group>
 </menu>

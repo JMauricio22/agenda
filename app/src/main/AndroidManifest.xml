@@ -15,6 +15,11 @@
         <service android:name=".service.NotificationService" />
 
         <activity
+            android:name=".CrearNotaActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+
+        <activity
             android:name=".CrearTareaActivity"
             android:parentActivityName=".MainActivity">
         </activity>
