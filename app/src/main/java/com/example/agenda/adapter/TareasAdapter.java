@@ -1,4 +1,4 @@
-package com.example.agenda;
+package com.example.agenda.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -13,10 +13,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.agenda.R;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import BD.tareas.Tarea;
