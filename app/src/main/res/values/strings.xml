@@ -31,4 +31,10 @@
     <string name="listas_tareas">Listas de tareas</string>
     <string name="notas">Notas</string>
     <string name="configuracion">Configuracion</string>
+
+    <!-- Notificaiones-->
+    <string name="channel_name">Alarma de tareas</string>
+    <string name="channel_description">Notificacion de alarma de tareas.</string>
+    <string name="channel_id">Task Alarm</string>
+
 </resources>
