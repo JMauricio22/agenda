@@ -1,5 +1,6 @@
 package com.example.agenda.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,7 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.agenda.CrearTareaActivity;
+import com.example.agenda.CreateTaskActivity;
 import com.example.agenda.R;
 import com.example.agenda.adapter.TareasAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,6 +39,8 @@ public class TaskFragment extends Fragment {
 
     private Filter[] filters = new Filter[list.length];
 
+    Context context;
+
     @Override
     public View onCreateView(LayoutInflater inflater , ViewGroup container , Bundle savedInstance){
         View view = inflater.inflate(R.layout.fragment_list , container , false);
@@ -47,6 +50,8 @@ public class TaskFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstance) {
         super.onActivityCreated(savedInstance);
+
+        context = getActivity().getApplicationContext();
 
         Toolbar toolbar = getView().findViewById(R.id.toolbar);
 
@@ -81,7 +86,7 @@ public class TaskFragment extends Fragment {
 
         btn.setOnClickListener( onCreateTask() );
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        LinearLayoutManager layoutManager = new LinearLayoutManager( context );
 
         createLiskTask();
     }
@@ -174,9 +179,9 @@ public class TaskFragment extends Fragment {
                     if(filterList.isEmpty())
                         continue;
 
-                    list.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+                    list.setLayoutManager(new LinearLayoutManager( context ));
 
-                    TareasAdapter adapter = new TareasAdapter(getActivity().getApplicationContext() , onDeleteListItem());
+                    TareasAdapter adapter = new TareasAdapter( context , onDeleteListItem() , onEditListItem());
 
                     filters[i] = adapter.getFilter();
 
@@ -205,9 +210,9 @@ public class TaskFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(getActivity().getApplicationContext() , CrearTareaActivity.class );
+                Intent intent = new Intent( context , CreateTaskActivity.class );
 
-                intent.putExtra(CrearTareaActivity.ACCION , CrearTareaActivity.CODE_REQUEST_ADD_TASK);
+                intent.putExtra(CreateTaskActivity.ACCION , CreateTaskActivity.CODE_REQUEST_ADD_TASK);
 
                 startActivity( intent );
             }
@@ -222,6 +227,27 @@ public class TaskFragment extends Fragment {
                 TareaViewModel model = new ViewModelProvider(getActivity()).get(TareaViewModel.class);
 
                 model.eliminar(tarea);
+            }
+        };
+    }
+
+    public TareasAdapter.OnItemClickListener onEditListItem(){
+        return new TareasAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Tarea tarea) {
+                Intent intent = new Intent( context , CreateTaskActivity.class);
+
+                intent.putExtra( CreateTaskActivity.ACCION , CreateTaskActivity.CODE_REQUEST_EDIT_TASK);
+
+                intent.putExtra( CreateTaskActivity.TASK_ID , tarea.id);
+
+                intent.putExtra( CreateTaskActivity.TASK_TITLE , tarea.titulo);
+
+                intent.putExtra( CreateTaskActivity.TASK_DATE, tarea.fecha);
+
+                intent.putExtra( CreateTaskActivity.TASK_OBSERVATION , tarea.observaciones);
+
+                startActivity( intent );
             }
         };
     }

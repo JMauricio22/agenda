@@ -25,8 +25,8 @@ import BD.tareas.Tarea;
 public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder> implements Filterable{
 
     //Interface
-    public interface OnItemClickListener {
-        void onItemClick (TareasAdapter.ViewHolder holder, int posicion);
+    public interface OnItemClickListener{
+        void onItemClick( Tarea tarea);
     }
 
     public interface OnRemoveClickListener {
@@ -37,19 +37,26 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         public View view;
+
         public TextView tituloTarea;
+
         public TextView fecha;
+
         public ImageView btnEliminar;
 
         public ViewHolder(@NonNull View view) {
             super(view);
+
             this.view = view;
+
             tituloTarea = (TextView) view.findViewById(R.id.titulo_tarea);
+
             fecha = (TextView) view.findViewById(R.id.fecha_tarea);
+
             btnEliminar = (ImageView) view.findViewById(R.id.btn_eliminar_tarea);
         }
 
-        public void bind(final Tarea tarea , final OnRemoveClickListener removeClickListener){
+        public void bind(final Tarea tarea , final OnRemoveClickListener removeClickListener , final OnItemClickListener clickListener){
 
             tituloTarea.setText(tarea.titulo);
 
@@ -67,6 +74,13 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
                     removeClickListener.onItemClick(tarea);
                 }
             });
+
+            view.setOnClickListener( new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    clickListener.onItemClick( tarea );
+                }
+            });
         }
     }
 
@@ -78,8 +92,6 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
-            Log.i("QueryAdapter" , constraint.toString());
-
             filterList.clear();
 
             FilterResults filterResults = new FilterResults();
@@ -93,7 +105,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
             }
 
             for(Tarea tarea: taskList){
-                if(tarea.titulo.contains(constraint.toString())) {
+                if(tarea.titulo.toLowerCase().contains(constraint.toString().toLowerCase())) {
                     filterList.add(tarea);
                 }
             }
@@ -112,17 +124,30 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
 
     //Fields
     private List<Tarea> taskList;
+
     private List<Tarea> filterList;
+
     private Context context;
+
     private OnRemoveClickListener removeClickListener;
+
+    private OnItemClickListener clickListener;
+
     public Filter filter;
+
     private TareasAdapter self = this;
 
-    public TareasAdapter(Context context , OnRemoveClickListener removeClickListener){
+    public TareasAdapter(Context context , OnRemoveClickListener removeClickListener , OnItemClickListener clickListener){
         this.context = context;
+
         this.removeClickListener = removeClickListener;
+
+        this.clickListener = clickListener;
+
         taskList = new ArrayList<>();
+
         filterList = new ArrayList<>();
+
         filter = new CustomFilter();
     }
 
@@ -135,7 +160,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(filterList.get(position) , removeClickListener);
+        holder.bind(filterList.get(position) , removeClickListener , clickListener);
     }
 
     @Override
@@ -144,8 +169,11 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
     }
 
     public void setItems(List<Tarea> newList){
+
         taskList.addAll(newList);
+
         filterList.addAll(taskList);
+
         notifyDataSetChanged();
     }
 

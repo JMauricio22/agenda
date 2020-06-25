@@ -23,23 +23,30 @@ import com.example.agenda.dialog.DialogoFecha;
 import com.example.agenda.dialog.DialogoHora;
 import com.example.agenda.receiver.AlarmReceiver;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import BD.model.TareaViewModel;
 import BD.tareas.Tarea;
 
-public class CrearTareaActivity extends AppCompatActivity {
+public class CreateTaskActivity extends AppCompatActivity {
 
     public static final String CODE_REQUEST_ADD_TASK = "ADD_TASK";
     public static final String CODE_REQUEST_EDIT_TASK = "EDIT_TASK";
     public static final String ACCION = "ACCION";
 
-    private EditText tituloTarea , fechaTarea ,  horaTarea , observaciones;
+    public static final String TASK_ID = "TASK_ID";
+    public static final String TASK_TITLE = "TASK_TITLE";
+    public static final String TASK_DATE= "TASK_DATE";
+    public static final String TASK_OBSERVATION = "TASK_OBSERVATION";
+
+    private EditText taskTitle, taskDate, taskTime, observation;
 
     private ImageView imgCalendar , imgTime;
 
-    private Date fecha = Calendar.getInstance().getTime();
+    private Date date = Calendar.getInstance().getTime();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,25 +63,27 @@ public class CrearTareaActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        tituloTarea = (EditText) findViewById(R.id.txt_tarea_titulo);
+        taskTitle = (EditText) findViewById(R.id.txt_tarea_titulo);
 
-        fechaTarea = (EditText) findViewById(R.id.txt_tarea_fecha);
+        taskDate = (EditText) findViewById(R.id.txt_tarea_fecha);
 
-        fechaTarea.setOnClickListener( onShowDialogoFecha());
+        taskDate.setOnClickListener( onShowDialogoFecha());
 
         imgCalendar = (ImageView) findViewById(R.id.img_calendar);
 
         imgCalendar.setOnClickListener( onShowDialogoFecha());
 
-        horaTarea = (EditText) findViewById(R.id.txt_tarea_hora);
+        taskTime = (EditText) findViewById(R.id.txt_tarea_hora);
 
-        horaTarea.setOnClickListener( onShowDialogoHora());
+        taskTime.setOnClickListener( onShowDialogoHora());
 
         imgTime = (ImageView) findViewById(R.id.img_time);
 
         imgTime.setOnClickListener( onShowDialogoHora());
 
-        observaciones = (EditText) findViewById(R.id.txt_tarea_observaciones);
+        observation = (EditText) findViewById(R.id.txt_tarea_observaciones);
+
+        initializateData();
     }
 
     @Override
@@ -87,7 +96,9 @@ public class CrearTareaActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.btn_guardar_tarea:
-                guardarTarea();
+
+                saveTask();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -121,13 +132,13 @@ public class CrearTareaActivity extends AppCompatActivity {
 
                 Calendar calendar = Calendar.getInstance();
 
-                calendar.setTime(fecha);
+                calendar.setTime(date);
 
                 calendar.set(year , month , dayOfMonth);
 
-                fecha = calendar.getTime();
+                date = calendar.getTime();
 
-                fechaTarea.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
+                taskDate.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
             }
         };
     }
@@ -139,32 +150,69 @@ public class CrearTareaActivity extends AppCompatActivity {
 
                 Calendar calendar = Calendar.getInstance();
 
-                calendar.setTime(fecha);
+                calendar.setTime(date);
 
                 calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) , calendar.get(Calendar.DAY_OF_MONTH), hourOfDay , minute);
 
-                fecha = calendar.getTime();
+                date = calendar.getTime();
 
-                horaTarea.setText(hourOfDay + ":" + minute);
+                taskTime.setText(hourOfDay + ":" + minute);
             }
         };
     }
 
-    private void guardarTarea(){
-        Tarea tarea = obtenerDatos();
+    private void initializateData(){
+        Intent intent = getIntent();
 
-        if(!validarDatos(tarea))
+        if(intent.getStringExtra(ACCION).equals(CODE_REQUEST_EDIT_TASK)){
+
+            Calendar calendar = Calendar.getInstance();
+
+            long timeInMilis = intent.getLongExtra( TASK_DATE , -1);
+
+            if(timeInMilis != -1)
+                calendar.setTimeInMillis( intent.getLongExtra(TASK_DATE , 0));
+
+            date = calendar.getTime();
+
+            taskTitle.setText( intent.getStringExtra(TASK_TITLE) );
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "" , Locale.getDefault());
+
+            simpleDateFormat.applyPattern("EEE,  MMM d, yyyy");
+
+            taskDate.setText(simpleDateFormat.format(calendar.getTime()));
+
+            simpleDateFormat.applyPattern("hh:mm");
+
+            taskTime.setText(simpleDateFormat.format(calendar.getTime()));
+
+            observation.setText( intent.getStringExtra(TASK_OBSERVATION));
+        }
+    }
+
+    private void saveTask(){
+        Tarea tarea = getData();
+
+        if(!validateData(tarea))
             return;
 
         TareaViewModel model = new ViewModelProvider(this).get(TareaViewModel.class);
 
         switch (getIntent().getStringExtra(ACCION)){
             case CODE_REQUEST_ADD_TASK:
+
                     model.insertar(tarea);
+
                     setAlarm(tarea);
+
                 break;
             case CODE_REQUEST_EDIT_TASK:
+
                     model.actualizar(tarea);
+
+                    setAlarm(tarea);
+
                 break;
         }
 
@@ -185,20 +233,23 @@ public class CrearTareaActivity extends AppCompatActivity {
         alarmManager.set(AlarmManager.RTC_WAKEUP ,  tarea.fecha , pendingIntent);
     }
 
-    private Tarea obtenerDatos(){
+    private Tarea getData(){
 
         Tarea tarea = new Tarea();
 
-        tarea.titulo = tituloTarea.getText().toString();
+        if(getIntent().getStringExtra(ACCION).equals(CODE_REQUEST_EDIT_TASK))
+            tarea.id = getIntent().getIntExtra( TASK_ID , -1);
 
-        tarea.fecha = fecha.getTime();
+        tarea.titulo = taskTitle.getText().toString();
 
-        tarea.observaciones = observaciones.getText().toString();
+        tarea.fecha = date.getTime();
+
+        tarea.observaciones = observation.getText().toString();
 
         return tarea;
     }
 
-    private boolean validarDatos(Tarea tarea){
+    private boolean validateData(Tarea tarea){
 
         if(tarea.titulo.equals("")) {
             showMessage("Titulo");
