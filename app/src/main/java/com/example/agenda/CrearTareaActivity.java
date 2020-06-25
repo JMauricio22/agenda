@@ -4,10 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.agenda.dialog.DialogoFecha;
 import com.example.agenda.dialog.DialogoHora;
+import com.example.agenda.receiver.AlarmReceiver;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -115,10 +118,15 @@ public class CrearTareaActivity extends AppCompatActivity {
         return new DatePickerDialog.OnDateSetListener(){
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
                 Calendar calendar = Calendar.getInstance();
+
                 calendar.setTime(fecha);
+
                 calendar.set(year , month , dayOfMonth);
+
                 fecha = calendar.getTime();
+
                 fechaTarea.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
             }
         };
@@ -128,10 +136,15 @@ public class CrearTareaActivity extends AppCompatActivity {
         return new TimePickerDialog.OnTimeSetListener(){
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+
                 Calendar calendar = Calendar.getInstance();
+
                 calendar.setTime(fecha);
+
                 calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) , calendar.get(Calendar.DAY_OF_MONTH), hourOfDay , minute);
+
                 fecha = calendar.getTime();
+
                 horaTarea.setText(hourOfDay + ":" + minute);
             }
         };
@@ -148,6 +161,7 @@ public class CrearTareaActivity extends AppCompatActivity {
         switch (getIntent().getStringExtra(ACCION)){
             case CODE_REQUEST_ADD_TASK:
                     model.insertar(tarea);
+                    setAlarm(tarea);
                 break;
             case CODE_REQUEST_EDIT_TASK:
                     model.actualizar(tarea);
@@ -157,11 +171,30 @@ public class CrearTareaActivity extends AppCompatActivity {
         finish();
     }
 
+    public void setAlarm(Tarea tarea){
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        Intent intent = new Intent( this , AlarmReceiver.class);
+
+        intent.putExtra("titulo" , tarea.titulo);
+
+        intent.putExtra("observaciones"  , tarea.observaciones);
+
+        PendingIntent pendingIntent =  PendingIntent.getBroadcast( getApplicationContext() , 0 , intent ,  PendingIntent.FLAG_ONE_SHOT);
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP ,  tarea.fecha , pendingIntent);
+    }
+
     private Tarea obtenerDatos(){
+
         Tarea tarea = new Tarea();
+
         tarea.titulo = tituloTarea.getText().toString();
+
         tarea.fecha = fecha.getTime();
+
         tarea.observaciones = observaciones.getText().toString();
+
         return tarea;
     }
 

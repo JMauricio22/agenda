@@ -1,43 +1,24 @@
 package com.example.agenda;
 
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.View;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.Filter;
-import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import BD.model.TareaViewModel;
-import BD.tareas.Tarea;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -57,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         setupDrawerContent((NavigationView) findViewById(R.id.navigation));
 
         loadTaskFragment();
+
+        createNotificationChannel(getString(R.string.channel_id));
 
     }
 
@@ -87,6 +70,24 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.fragment_container , taskFragment);
 
         fragmentTransaction.commit();
+    }
+
+    private void createNotificationChannel(String CHANNEL_ID) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+
+            String description = getString(R.string.channel_description);
+
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
 }
