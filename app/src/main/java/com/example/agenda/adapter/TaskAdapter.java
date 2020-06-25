@@ -1,7 +1,6 @@
 package com.example.agenda.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,7 @@ import java.util.List;
 
 import BD.tareas.Tarea;
 
-public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder> implements Filterable{
+public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> implements Filterable{
 
     //Interface
     public interface OnItemClickListener{
@@ -96,10 +95,11 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
 
             FilterResults filterResults = new FilterResults();
 
-
             if(constraint.toString().length() == 0 || constraint.toString().equals("")) {
 
                 filterList.addAll(taskList);
+
+                filterResults.count = filterList.size();
 
                 return filterResults;
             }
@@ -110,7 +110,6 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
                 }
             }
 
-            filterResults.values = filterList;
             filterResults.count = filterList.size();
 
             return filterResults;
@@ -118,7 +117,13 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            self.notifyDataSetChanged();
+
+            if(results.count == 0)
+                listTitleView.setVisibility(View.GONE);
+            else
+                listTitleView.setVisibility(View.VISIBLE);
+
+            notifyDataSetChanged();
         }
     }
 
@@ -135,20 +140,23 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.ViewHolder
 
     public Filter filter;
 
-    private TareasAdapter self = this;
+    public View listTitleView;
 
-    public TareasAdapter(Context context , OnRemoveClickListener removeClickListener , OnItemClickListener clickListener){
+    public TaskAdapter(View listTitleView , Context context , OnRemoveClickListener removeClickListener , OnItemClickListener clickListener){
         this.context = context;
 
         this.removeClickListener = removeClickListener;
 
         this.clickListener = clickListener;
 
+        this.listTitleView = listTitleView;
+
         taskList = new ArrayList<>();
 
         filterList = new ArrayList<>();
 
         filter = new CustomFilter();
+
     }
 
     @NonNull

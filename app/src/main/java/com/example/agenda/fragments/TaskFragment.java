@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.agenda.CreateTaskActivity;
 import com.example.agenda.R;
-import com.example.agenda.adapter.TareasAdapter;
+import com.example.agenda.adapter.TaskAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -115,7 +115,9 @@ public class TaskFragment extends Fragment {
 
                     RecyclerView list = (RecyclerView) view.findViewById(R.id.lista_tareas);
 
-                    ( (TextView) view.findViewById(R.id.titulo_lista_tareas)).setText(filterName[i]);
+                    TextView titleView = ( (TextView) view.findViewById(R.id.titulo_lista_tareas));
+
+                    titleView.setText(filterName[i]);
 
                     List<Tarea> filterList = new ArrayList<>();
 
@@ -181,7 +183,7 @@ public class TaskFragment extends Fragment {
 
                     list.setLayoutManager(new LinearLayoutManager( context ));
 
-                    TareasAdapter adapter = new TareasAdapter( context , onDeleteListItem() , onEditListItem());
+                    TaskAdapter adapter = new TaskAdapter( titleView , context , onDeleteListItem() , onEditListItem());
 
                     filters[i] = adapter.getFilter();
 
@@ -219,8 +221,8 @@ public class TaskFragment extends Fragment {
         };
     }
 
-    public TareasAdapter.OnRemoveClickListener onDeleteListItem(){
-        return new TareasAdapter.OnRemoveClickListener() {
+    public TaskAdapter.OnRemoveClickListener onDeleteListItem(){
+        return new TaskAdapter.OnRemoveClickListener() {
             @Override
             public void onItemClick(Tarea tarea) {
 
@@ -231,8 +233,8 @@ public class TaskFragment extends Fragment {
         };
     }
 
-    public TareasAdapter.OnItemClickListener onEditListItem(){
-        return new TareasAdapter.OnItemClickListener() {
+    public TaskAdapter.OnItemClickListener onEditListItem(){
+        return new TaskAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Tarea tarea) {
                 Intent intent = new Intent( context , CreateTaskActivity.class);

@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.agenda.CreateNoteActivity;
 import com.example.agenda.R;
-import com.example.agenda.adapter.NotasAdapater;
+import com.example.agenda.adapter.NoteAdapater;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -31,7 +31,7 @@ import BD.notas.Nota;
 
 public class NoteFragment extends Fragment {
 
-    NotasAdapater adapater;
+    NoteAdapater adapater;
 
     Context context;
 
@@ -75,7 +75,7 @@ public class NoteFragment extends Fragment {
 
         recyclerView.setLayoutManager( new GridLayoutManager( context , 2));
 
-        adapater = new NotasAdapater( context , onDeleteListItem() , onEditListItem());
+        adapater = new NoteAdapater( context , onDeleteListItem() , onEditListItem());
 
         filter = adapater.getFilter();
 
@@ -108,8 +108,8 @@ public class NoteFragment extends Fragment {
         };
     }
 
-    public NotasAdapater.OnRemoveClickListener onDeleteListItem(){
-        return new NotasAdapater.OnRemoveClickListener() {
+    public NoteAdapater.OnRemoveClickListener onDeleteListItem(){
+        return new NoteAdapater.OnRemoveClickListener() {
             @Override
             public void onItemClick(Nota nota) {
 
@@ -120,8 +120,8 @@ public class NoteFragment extends Fragment {
         };
     }
 
-    public NotasAdapater.onItemClickListener onEditListItem(){
-        return new NotasAdapater.onItemClickListener() {
+    public NoteAdapater.onItemClickListener onEditListItem(){
+        return new NoteAdapater.onItemClickListener() {
             @Override
             public void onItemClick(Nota nota) {
 
