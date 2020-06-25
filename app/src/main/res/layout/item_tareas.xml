@@ -6,8 +6,7 @@
     android:layout_height="70dp"
     android:padding="10dp"
     android:layout_margin="10dp"
-    android:gravity="center_vertical"
-    android:layout_alignEnd="@id/btn_eliminar_tarea">
+    android:gravity="center_vertical">
 
     <RelativeLayout
         android:id="@+id/container"

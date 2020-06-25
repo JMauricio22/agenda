@@ -1,4 +1,4 @@
-package com.example.agenda;
+package com.example.agenda.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +20,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.agenda.CrearTareaActivity;
+import com.example.agenda.R;
 import com.example.agenda.adapter.TareasAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -35,6 +37,12 @@ public class TaskFragment extends Fragment {
     private View[] list = new View[6];
 
     private Filter[] filters = new Filter[list.length];
+
+    @Override
+    public View onCreateView(LayoutInflater inflater , ViewGroup container , Bundle savedInstance){
+        View view = inflater.inflate(R.layout.fragment_list , container , false);
+        return view;
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstance) {
@@ -78,17 +86,9 @@ public class TaskFragment extends Fragment {
         createLiskTask();
     }
 
-
-    @Override
-    public View onCreateView(LayoutInflater inflater , ViewGroup container , Bundle savedInstance){
-       View view = inflater.inflate(R.layout.fragment_list , container , false);
-       return view;
-    }
-
-
     public void createLiskTask(){
 
-        new ViewModelProvider(this).get(TareaViewModel.class).getTareas().observe(this , new Observer<List<Tarea>>(){
+        new ViewModelProvider(this).get(TareaViewModel.class).getTareas().observe(getViewLifecycleOwner() , new Observer<List<Tarea>>(){
 
             @Override
             public void onChanged(@NonNull final List<Tarea> listaTareas) {
@@ -97,7 +97,7 @@ public class TaskFragment extends Fragment {
 
                 Calendar currentCalendar = Calendar.getInstance();
 
-                ViewGroup container = (ViewGroup) getView().findViewById(R.id.task_container);
+                ViewGroup container = (ViewGroup) getView().findViewById(R.id.list_container);
 
                 for(View v: list)
                     container.removeView(v);
@@ -191,10 +191,12 @@ public class TaskFragment extends Fragment {
     }
 
     private void filterTasks(String query){
+
         for(Filter f: filters){
             if(f != null)
                 f.filter(query);
         }
+
     }
 
 
@@ -202,8 +204,11 @@ public class TaskFragment extends Fragment {
         return new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(getActivity().getApplicationContext() , CrearTareaActivity.class );
+
                 intent.putExtra(CrearTareaActivity.ACCION , CrearTareaActivity.CODE_REQUEST_ADD_TASK);
+
                 startActivity( intent );
             }
         };
@@ -213,7 +218,9 @@ public class TaskFragment extends Fragment {
         return new TareasAdapter.OnRemoveClickListener() {
             @Override
             public void onItemClick(Tarea tarea) {
+
                 TareaViewModel model = new ViewModelProvider(getActivity()).get(TareaViewModel.class);
+
                 model.eliminar(tarea);
             }
         };
