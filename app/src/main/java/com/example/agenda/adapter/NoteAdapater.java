@@ -93,7 +93,7 @@ public class NoteAdapater extends RecyclerView.Adapter<NoteAdapater.ViewHolder> 
             }
 
             for(Nota note: noteList){
-                if(note.titulo.contains(constraint.toString())) {
+                if(note.titulo.toLowerCase().contains(constraint.toString().toLowerCase())) {
                     filterList.add(note);
                 }
             }

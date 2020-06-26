@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -22,15 +23,22 @@ public class NotificationService extends IntentService {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
 
+        RemoteViews remoteViews = new RemoteViews( getPackageName() , R.layout.custom_notification_task);
+
         String titulo = intent.getStringExtra("titulo");
 
         String observaciones = intent.getStringExtra("observaciones");
 
+        remoteViews.setCharSequence(R.id.notification_title , "setText" , titulo);
+
+        remoteViews.setCharSequence(R.id.notification_task , "setText" , observaciones);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder( context , context.getString(R.string.channel_id));
 
-        builder.setContentTitle(titulo)
+        builder
                 .setSmallIcon(R.drawable.ic_event_black_24dp)
-                .setContentText(observaciones)
+                .setStyle( new NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomContentView( remoteViews )
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         notificationManager.notify( 1 , builder.build());

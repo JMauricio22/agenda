@@ -40,6 +40,6 @@ public class DialogoFecha extends DialogFragment {
 
         int year = calendar.get(Calendar.YEAR);
 
-        return new DatePickerDialog(getActivity() , listener , year , month , day);
+        return new DatePickerDialog(getActivity() , listener , year , month , day );
     }
 }
