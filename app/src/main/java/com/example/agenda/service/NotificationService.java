@@ -11,6 +11,10 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.agenda.R;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 public class NotificationService extends IntentService {
 
     public NotificationService() {
@@ -25,13 +29,19 @@ public class NotificationService extends IntentService {
 
         RemoteViews remoteViews = new RemoteViews( getPackageName() , R.layout.custom_notification_task);
 
-        String titulo = intent.getStringExtra("titulo");
+        String title = intent.getStringExtra("titulo");
 
-        String observaciones = intent.getStringExtra("observaciones");
+        Long date = intent.getLongExtra("fecha" , -1);
 
-        remoteViews.setCharSequence(R.id.notification_title , "setText" , titulo);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a" , Locale.getDefault());
 
-        remoteViews.setCharSequence(R.id.notification_task , "setText" , observaciones);
+        remoteViews.setCharSequence(R.id.notification_task , "setText" , title);
+
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTimeInMillis( date );
+
+        remoteViews.setCharSequence(R.id.notification_title , "setText" , "Tarea a las" +  " " + simpleDateFormat.format(calendar.getTime()));
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder( context , context.getString(R.string.channel_id));
 

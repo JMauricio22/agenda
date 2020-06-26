@@ -13,7 +13,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         intentService.putExtra("titulo" , intent.getStringExtra("titulo"));
 
-        intentService.putExtra("observaciones" , intentService.getStringExtra("observaciones"));
+        intentService.putExtra("fecha" , intent.getLongExtra("fecha" , -1));
 
         context.startService(intentService);
     }

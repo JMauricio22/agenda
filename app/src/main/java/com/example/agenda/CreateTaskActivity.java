@@ -33,6 +33,13 @@ import BD.tareas.Tarea;
 
 public class CreateTaskActivity extends AppCompatActivity {
 
+    //Interface
+    public interface SetUpAlarm{
+        void setAlarm(long id , String title , Long date);
+    }
+
+    //Fields
+
     public static final String CODE_REQUEST_ADD_TASK = "ADD_TASK";
     public static final String CODE_REQUEST_EDIT_TASK = "EDIT_TASK";
     public static final String ACCION = "ACCION";
@@ -216,16 +223,20 @@ public class CreateTaskActivity extends AppCompatActivity {
         switch (getIntent().getStringExtra(ACCION)){
             case CODE_REQUEST_ADD_TASK:
 
-                    model.insertar(tarea);
-
-                    setAlarm(tarea);
+                    if(!date.before(Calendar.getInstance().getTime()))
+                        model.insertar(tarea , onSetUpAlarm());
+                    else
+                        model.insertar(tarea , null);
 
                 break;
             case CODE_REQUEST_EDIT_TASK:
 
-                    model.actualizar(tarea);
+                cancelAlarm(tarea.id);
 
-                    setAlarm(tarea);
+                if(!date.before(Calendar.getInstance().getTime()))
+                    model.actualizar(tarea , onSetUpAlarm());
+                else
+                    model.actualizar(tarea , null);
 
                 break;
         }
@@ -233,18 +244,14 @@ public class CreateTaskActivity extends AppCompatActivity {
         finish();
     }
 
-    public void setAlarm(Tarea tarea){
+    public void cancelAlarm(int id){
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         Intent intent = new Intent( this , AlarmReceiver.class);
 
-        intent.putExtra("titulo" , tarea.titulo);
+        PendingIntent pendingIntent =  PendingIntent.getBroadcast( getApplicationContext() , id , intent ,  PendingIntent.FLAG_ONE_SHOT);
 
-        intent.putExtra("observaciones"  , tarea.observaciones);
-
-        PendingIntent pendingIntent =  PendingIntent.getBroadcast( getApplicationContext() , 0 , intent ,  PendingIntent.FLAG_ONE_SHOT);
-
-        alarmManager.set(AlarmManager.RTC_WAKEUP ,  tarea.fecha , pendingIntent);
+        alarmManager.cancel( pendingIntent );
     }
 
     private Tarea getData(){
@@ -276,5 +283,24 @@ public class CreateTaskActivity extends AppCompatActivity {
     private void showMessage(String message){
         Toast.makeText(getApplicationContext() , "Complete el campo " + message , Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    public SetUpAlarm onSetUpAlarm(){
+        return new SetUpAlarm(){
+            @Override
+            public void setAlarm(long id , String title , Long date) {
+                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+                Intent intent = new Intent( getApplicationContext() , AlarmReceiver.class);
+
+                intent.putExtra("titulo" , title);
+
+                intent.putExtra("fecha"  , date);
+
+                PendingIntent pendingIntent =  PendingIntent.getBroadcast( getApplicationContext() , (int) id , intent ,  PendingIntent.FLAG_ONE_SHOT);
+
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP ,  date , pendingIntent);
+            }
+        };
     }
 }

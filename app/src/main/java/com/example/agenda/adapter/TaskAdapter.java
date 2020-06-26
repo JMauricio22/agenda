@@ -59,7 +59,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> im
 
             tituloTarea.setText(tarea.titulo);
 
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+            SimpleDateFormat format = new SimpleDateFormat("EEE, MMM d, yyyy hh:mm a");
 
             Calendar calendar = Calendar.getInstance();
 

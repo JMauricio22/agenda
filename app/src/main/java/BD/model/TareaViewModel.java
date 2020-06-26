@@ -5,6 +5,8 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.example.agenda.CreateTaskActivity;
+
 import java.util.List;
 
 import BD.database.AgendaRepository;
@@ -19,12 +21,12 @@ public class TareaViewModel extends AndroidViewModel {
         repository = new AgendaRepository(app);
     }
 
-    public void insertar(Tarea tarea){
-        repository.insertarTarea(tarea);
+    public void insertar(Tarea tarea , final CreateTaskActivity.SetUpAlarm setUpAlarm){
+        repository.insertarTarea(tarea , setUpAlarm);
     }
 
-    public void actualizar(Tarea tarea){
-        repository.actualizarTarea(tarea);
+    public void actualizar(Tarea tarea , final CreateTaskActivity.SetUpAlarm setUpAlarm){
+        repository.actualizarTarea(tarea ,  setUpAlarm);
     }
 
     public void eliminar(Tarea tarea){
