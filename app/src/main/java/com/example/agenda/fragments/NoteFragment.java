@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -87,6 +88,7 @@ public class NoteFragment extends Fragment {
             @Override
             public void onChanged(final List<Nota> notas) {
                 adapater.setItems(notas);
+
             }
         });
 
@@ -159,5 +161,6 @@ public class NoteFragment extends Fragment {
             }
         };
     }
+
 
 }

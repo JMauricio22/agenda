@@ -132,4 +132,5 @@ public class CreateNoteActivity extends AppCompatActivity {
     private void showMessage(String message){
         Toast.makeText(this, "Complete el campo " + message, Toast.LENGTH_SHORT).show();
     }
+
 }
