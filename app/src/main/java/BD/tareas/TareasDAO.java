@@ -13,10 +13,10 @@ import java.util.List;
 public interface TareasDAO {
 
     @Insert
-    void insertar(Tarea tarea);
+    long insertar(Tarea tarea);
 
     @Update
-    void actualizar(Tarea tarea);
+    int actualizar(Tarea tarea);
 
     @Delete
     void eliminar(Tarea tarea);

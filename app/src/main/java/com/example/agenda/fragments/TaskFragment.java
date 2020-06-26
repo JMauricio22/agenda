@@ -1,5 +1,7 @@
 package com.example.agenda.fragments;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,14 +26,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.agenda.CreateTaskActivity;
 import com.example.agenda.R;
 import com.example.agenda.adapter.TaskAdapter;
+import com.example.agenda.receiver.AlarmReceiver;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import BD.model.TareaViewModel;
 import BD.tareas.Tarea;
+
+import static android.content.Context.ALARM_SERVICE;
 
 public class TaskFragment extends Fragment {
 
@@ -127,35 +133,41 @@ public class TaskFragment extends Fragment {
 
                         taskCalendar.setTimeInMillis(tarea.fecha);
 
+                        Date currentDate;
+                        Date taskDate;
+
                         switch (i){
                             case 0:
 
-                                if(taskCalendar.get(Calendar.YEAR) < currentCalendar.get(Calendar.YEAR))
-                                    filterList.add(tarea);
-                                else if(taskCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR) && taskCalendar.get(Calendar.MONTH) < currentCalendar.get(Calendar.MONTH) )
-                                    filterList.add(tarea);
-                                else if(taskCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR) && taskCalendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH) && taskCalendar.get(Calendar.DAY_OF_MONTH) < currentCalendar.get(Calendar.DAY_OF_MONTH))
+                                currentDate = currentCalendar.getTime();
+                                taskDate = taskCalendar.getTime();
+
+                                if( taskDate.before( currentDate ))
                                     filterList.add(tarea);
 
                                 break;
                             case 1:
 
-                                if(currentCalendar.get(Calendar.DAY_OF_MONTH) == taskCalendar.get(Calendar.DAY_OF_MONTH) && currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
+                                currentDate = currentCalendar.getTime();
+                                taskDate = taskCalendar.getTime();
+
+
+                                if( taskDate.before( currentDate ) == false && currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR) && currentCalendar.get(Calendar.MONTH) == taskCalendar.get(Calendar.MONTH) && currentCalendar.get(Calendar.DAY_OF_MONTH) == taskCalendar.get(Calendar.DAY_OF_MONTH))
                                     filterList.add(tarea);
 
                                 break;
                             case 2:
                             case 3:
 
-                                int limite = 6 - (currentCalendar.get(Calendar.DAY_OF_WEEK) - 1);
+                                int limit = 6 - (currentCalendar.get(Calendar.DAY_OF_WEEK) - 1);
 
                                 if(currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
 
                                     if(taskCalendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)){
 
-                                        if( i == 2 && taskCalendar.get(Calendar.DAY_OF_MONTH) > currentCalendar.get(Calendar.DAY_OF_MONTH) && taskCalendar.get(Calendar.DAY_OF_MONTH) <= (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite) ){
+                                        if( i == 2 && taskCalendar.get(Calendar.DAY_OF_MONTH) > currentCalendar.get(Calendar.DAY_OF_MONTH) && taskCalendar.get(Calendar.DAY_OF_MONTH) <= (currentCalendar.get(Calendar.DAY_OF_MONTH) + limit) ){
                                             filterList.add(tarea);
-                                        }else if( i == 3 && (taskCalendar.get(Calendar.DAY_OF_MONTH) <= (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite + 7) && taskCalendar.get(Calendar.DAY_OF_MONTH) > (currentCalendar.get(Calendar.DAY_OF_MONTH) + limite))){
+                                        }else if( i == 3 && (taskCalendar.get(Calendar.DAY_OF_MONTH) <= (currentCalendar.get(Calendar.DAY_OF_MONTH) + limit + 7) && taskCalendar.get(Calendar.DAY_OF_MONTH) > (currentCalendar.get(Calendar.DAY_OF_MONTH) + limit))){
                                             filterList.add(tarea);
                                         }
 
@@ -165,13 +177,14 @@ public class TaskFragment extends Fragment {
 
                             case 4:
 
-                                if((taskCalendar.get(Calendar.MONTH) - currentCalendar.get(Calendar.MONTH)) == 1 && currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR))
+                                if(currentCalendar.get(Calendar.YEAR) == taskCalendar.get(Calendar.YEAR) && (taskCalendar.get(Calendar.MONTH) - currentCalendar.get(Calendar.MONTH)) == 1)
                                     filterList.add(tarea);
 
                                 break;
 
                             case 5:
-                                if((taskCalendar.get(Calendar.MONTH) - currentCalendar.get(Calendar.MONTH)) > 1 && taskCalendar.get(Calendar.YEAR) >= currentCalendar.get(Calendar.YEAR))
+
+                                if(taskCalendar.get(Calendar.YEAR) >= currentCalendar.get(Calendar.YEAR) && (taskCalendar.get(Calendar.MONTH) - currentCalendar.get(Calendar.MONTH)) > 1)
                                     filterList.add(tarea);
 
                                 break;
@@ -227,6 +240,14 @@ public class TaskFragment extends Fragment {
             public void onItemClick(Tarea tarea) {
 
                 TareaViewModel model = new ViewModelProvider(getActivity()).get(TareaViewModel.class);
+
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+
+                Intent intent = new Intent( context , AlarmReceiver.class);
+
+                PendingIntent pendingIntent =  PendingIntent.getBroadcast( context , (int) tarea.id , intent ,  PendingIntent.FLAG_ONE_SHOT);
+
+                alarmManager.cancel( pendingIntent );
 
                 model.eliminar(tarea);
             }

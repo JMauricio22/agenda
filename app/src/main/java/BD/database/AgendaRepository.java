@@ -4,6 +4,8 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
+import com.example.agenda.CreateTaskActivity;
+
 import java.util.List;
 
 import BD.notas.Nota;
@@ -30,20 +32,29 @@ public class AgendaRepository {
 
     //Tareas
 
-    public void insertarTarea(final Tarea tarea){
+    public void insertarTarea(final Tarea tarea , final CreateTaskActivity.SetUpAlarm setUpAlarm){
         RoomDatabase.databaseWriteExecutor.execute(new Runnable(){
             @Override
             public void run() {
-                tareasDAO.insertar(tarea);
+
+                long id = tareasDAO.insertar(tarea);
+
+                if(setUpAlarm != null)
+                    setUpAlarm.setAlarm( id , tarea.titulo , tarea.fecha);
+
             }
         });
     }
 
-    public void actualizarTarea(final Tarea tarea){
+    public void actualizarTarea(final Tarea tarea , final CreateTaskActivity.SetUpAlarm setUpAlarm){
         RoomDatabase.databaseWriteExecutor.execute(new Runnable(){
             @Override
             public void run() {
-                tareasDAO.actualizar(tarea);
+
+                int id = tareasDAO.actualizar(tarea);
+
+                if(setUpAlarm != null)
+                    setUpAlarm.setAlarm( id , tarea.titulo , tarea.fecha);
             }
         });
     }
