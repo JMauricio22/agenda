@@ -1,5 +1,6 @@
 package com.example.agenda.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,7 +82,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> im
                 }
             });
         }
+
+
     }
+
 
     public class CustomFilter extends Filter{
 

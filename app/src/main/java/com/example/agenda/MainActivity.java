@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         loadTaskFragment();
 
         createNotificationChannel(getString(R.string.channel_id));
-       
+
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
